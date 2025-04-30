@@ -6,14 +6,14 @@ namespace Smile\GdprDump\Database;
 
 use Smile\GdprDump\Config\ConfigInterface;
 
-class DatabaseFactory
+final class DatabaseFactory
 {
     /**
      * Create a database object.
      */
     public function create(ConfigInterface $config): Database
     {
-        $connectionParams = $config->get('database', []);
+        $connectionParams = (array) $config->get('database', []);
 
         // Rename some keys (for compatibility with the Doctrine connection)
         if (array_key_exists('name', $connectionParams)) {

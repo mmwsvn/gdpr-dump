@@ -6,11 +6,11 @@ namespace Smile\GdprDump\Database;
 
 use UnexpectedValueException;
 
-class ParameterBag
+final class ParameterBag
 {
     private array $params;
     private array $defaults = [
-        Database::DRIVER_MYSQL => ['host' => 'localhost', 'user' => 'root'],
+        DatabaseInterface::DRIVER_MYSQL => ['host' => 'localhost', 'user' => 'root'],
     ];
 
     /**
@@ -52,7 +52,7 @@ class ParameterBag
 
         // Set the driver
         if (!isset($params['driver'])) {
-            $params['driver'] = Database::DRIVER_MYSQL;
+            $params['driver'] = DatabaseInterface::DRIVER_MYSQL;
         }
 
         if (isset($this->defaults[$params['driver']])) {

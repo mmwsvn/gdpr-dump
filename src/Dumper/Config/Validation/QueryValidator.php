@@ -6,8 +6,9 @@ namespace Smile\GdprDump\Dumper\Config\Validation;
 
 use TheSeer\Tokenizer\TokenCollection;
 use TheSeer\Tokenizer\Tokenizer;
+use UnexpectedValueException;
 
-class QueryValidator
+final class QueryValidator
 {
     private Tokenizer $tokenizer;
 
@@ -15,12 +16,13 @@ class QueryValidator
      * @var string[]
      */
     private array $statements = [
-        'alter', 'analyse', 'backup', 'binlog', 'cache', 'change', 'close', 'commit', 'create',
-        'deallocate', 'declare', 'delete', 'describe', 'drop', 'execute', 'explain', 'fetch', 'flush',
-        'get', 'grant', 'help', 'install', 'kill', 'load', 'lock', 'open', 'optimize', 'prepare',
-        'purge', 'rename', 'repair', 'reset', 'resignal', 'revoke', 'rollback', 'savepoint', 'select',
-        'set', 'password', 'show', 'shutdown', 'signal', 'start', 'truncate', 'uninstall', 'unlock',
-        'update', 'use', 'xa',
+        'alter', 'analyze', 'backup', 'begin', 'binlog', 'cache', 'call', 'change', 'check', 'checksum',
+        'close', 'commit', 'create', 'deallocate', 'declare', 'delete', 'describe', 'do', 'drop', 'end',
+        'execute', 'explain', 'fetch', 'flush', 'get', 'grant', 'help', 'insert', 'import', 'install',
+        'kill', 'load', 'lock', 'open', 'optimize', 'prepare', 'purge', 'rename', 'repair', 'replace',
+        'reset', 'resignal', 'restart', 'revoke', 'rollback', 'savepoint', 'select', 'set', 'password',
+        'show', 'shutdown', 'signal', 'start', 'stop', 'truncate', 'uninstall', 'unlock', 'update',
+        'use', 'xa',
     ];
 
     /**
@@ -42,6 +44,8 @@ class QueryValidator
 
     /**
      * Validate the query. An optional callback can be passed for additional validation.
+     *
+     * @throws UnexpectedValueException
      */
     public function validate(string $query, ?callable $callback = null): void
     {
@@ -52,11 +56,13 @@ class QueryValidator
             $value = $token->getValue();
 
             if ($name === 'T_DEC' || $name === 'T_COMMENT') {
-                throw new ValidationException(sprintf('Forbidden comment found in query "%s".', $query));
+                throw new UnexpectedValueException(sprintf('Forbidden comment found in query "%s".', $query));
             }
 
             if ($name === 'T_STRING' && !$this->isStatementAllowed($value)) {
-                throw new ValidationException(sprintf('Forbidden keyword "%s" found in query "%s".', $value, $query));
+                throw new UnexpectedValueException(
+                    sprintf('Forbidden keyword "%s" found in query "%s".', $value, $query)
+                );
             }
 
             if ($callback !== null) {

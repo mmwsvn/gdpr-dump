@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.5] - 2025-04-05
+[5.0.5]: https://github.com/Smile-SA/gdpr-dump/compare/5.0.4...5.0.5
+
+- Fix database url param not being compatible with env vars ([#157](https://github.com/Smile-SA/gdpr-dump/pull/157))
+
+## [5.0.4] - 2025-04-03
+[5.0.4]: https://github.com/Smile-SA/gdpr-dump/compare/5.0.3...5.0.4
+
+- Added optional `database.url` config parameter ([#147](https://github.com/Smile-SA/gdpr-dump/pull/147))
+
+## [5.0.3] - 2025-02-27
+[5.0.3]: https://github.com/Smile-SA/gdpr-dump/compare/5.0.2...5.0.3
+
+- Added forbidden statements to the query validator: `begin`, `call`, `check`, `checksum`, `do`, `end`, `import`, `insert`, `replace`, `restart`, `stop` ([#153](https://github.com/Smile-SA/gdpr-dump/pull/153))
+
+## [5.0.2] - 2024-12-02
+[5.0.2]: https://github.com/Smile-SA/gdpr-dump/compare/5.0.1...5.0.2
+
+- Removed converter for "email_imported" column from magento2 template file ([#144](https://github.com/Smile-SA/gdpr-dump/pull/144))
+
 ## [5.0.1] - 2024-07-10
 [5.0.1]: https://github.com/Smile-SA/gdpr-dump/compare/5.0.0...5.0.1
 

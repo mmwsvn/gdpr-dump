@@ -7,7 +7,7 @@ namespace Smile\GdprDump\Config\Compiler\Processor;
 use Smile\GdprDump\Config\Compiler\CompileException;
 use Smile\GdprDump\Config\ConfigInterface;
 
-class EnvVarProcessor implements ProcessorInterface
+final class EnvVarProcessor implements ProcessorInterface
 {
     /**
      * Environment variable name format.
@@ -27,6 +27,8 @@ class EnvVarProcessor implements ProcessorInterface
 
     /**
      * Replace environment variable placeholders (e.g. "%env(DB_HOST)%")
+     *
+     * @throws CompileException
      */
     public function process(ConfigInterface $config): void
     {
@@ -84,6 +86,7 @@ class EnvVarProcessor implements ProcessorInterface
     /**
      * Parse "%env($name)%".
      *
+     * @return array{0: string, 1: string}
      * @throws CompileException
      */
     private function parse(string $name): array

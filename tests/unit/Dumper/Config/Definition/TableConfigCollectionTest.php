@@ -9,7 +9,7 @@ use Smile\GdprDump\Dumper\Config\Definition\TableConfigCollection;
 use Smile\GdprDump\Tests\Unit\TestCase;
 use UnexpectedValueException;
 
-class TableConfigCollectionTest extends TestCase
+final class TableConfigCollectionTest extends TestCase
 {
     /**
      * Test that an empty collection behaves as expected.
@@ -33,7 +33,6 @@ class TableConfigCollectionTest extends TestCase
         $this->assertCount(2, $collection->all());
         $this->assertTrue($collection->has('table1'));
         $this->assertTrue($collection->has('table2'));
-        $this->assertInstanceOf(TableConfig::class, $collection->get('table1'));
         $this->assertSame('table1', $collection->get('table1')->getName());
     }
 

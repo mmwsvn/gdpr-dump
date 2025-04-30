@@ -8,7 +8,7 @@ use Smile\GdprDump\Converter\Parameters\ValidationException;
 use Smile\GdprDump\Converter\Randomizer\RandomizeText;
 use Smile\GdprDump\Tests\Unit\Converter\TestCase;
 
-class RandomizeTextTest extends TestCase
+final class RandomizeTextTest extends TestCase
 {
     /**
      * Test the converter.
@@ -21,6 +21,7 @@ class RandomizeTextTest extends TestCase
         $this->assertSame('', $value);
 
         $value = $converter->convert('user1');
+        $this->assertIsString($value);
         $this->assertStringNotContainsString('user1', $value);
     }
 
@@ -32,6 +33,7 @@ class RandomizeTextTest extends TestCase
         $converter = $this->createConverter(RandomizeText::class, ['min_length' => 10]);
 
         $value = $converter->convert('user1');
+        $this->assertIsString($value);
         $this->assertSame(10, strlen($value));
     }
 

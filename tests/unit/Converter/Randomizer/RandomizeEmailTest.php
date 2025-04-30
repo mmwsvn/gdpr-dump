@@ -8,7 +8,7 @@ use Smile\GdprDump\Converter\Parameters\ValidationException;
 use Smile\GdprDump\Converter\Randomizer\RandomizeEmail;
 use Smile\GdprDump\Tests\Unit\Converter\TestCase;
 
-class RandomizeEmailTest extends TestCase
+final class RandomizeEmailTest extends TestCase
 {
     /**
      * Test the converter.
@@ -21,6 +21,7 @@ class RandomizeEmailTest extends TestCase
         $this->assertSame('', $value);
 
         $value = $converter->convert('user1@gmail.com');
+        $this->assertIsString($value);
         $this->assertStringNotContainsString('user1', $value);
         $this->assertStringNotContainsString('@gmail.com', $value);
         $this->assertStringEndsWith('@example.org', $value);
@@ -37,6 +38,7 @@ class RandomizeEmailTest extends TestCase
         ]);
 
         $value = $converter->convert('user1@example.org');
+        $this->assertIsString($value);
         $this->assertStringEndsWith('@example.org', $value);
 
         $parts = explode('@', $value);

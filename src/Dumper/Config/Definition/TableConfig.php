@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Smile\GdprDump\Dumper\Config\Definition;
 
 use Smile\GdprDump\Dumper\Config\Definition\Table\SortOrder;
-use Smile\GdprDump\Dumper\Config\Validation\ValidationException;
 use Smile\GdprDump\Dumper\Config\Validation\WhereExprValidator;
 use UnexpectedValueException;
 
-class TableConfig
+final class TableConfig
 {
     private string $name;
     private ?string $where = null;
@@ -117,12 +116,12 @@ class TableConfig
     /**
      * Prepare the table filters.
      *
-     * @throws ValidationException
+     * @throws UnexpectedValueException
      */
     private function prepareFilters(array $tableData): void
     {
         if (array_key_exists('filters', $tableData)) {
-            throw new ValidationException(
+            throw new UnexpectedValueException(
                 'The property "filters" is no longer supported. Use "where" instead.'
             );
         }

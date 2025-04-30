@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Smile\GdprDump\Dumper\Config\Validation;
 
 use TheSeer\Tokenizer\Token;
+use UnexpectedValueException;
 
-class WhereExprValidator
+final class WhereExprValidator
 {
     private QueryValidator $queryValidator;
 
@@ -31,7 +32,9 @@ class WhereExprValidator
 
             if ($token->getName() === 'T_CLOSE_BRACKET') {
                 if ($openedBrackets === 0) {
-                    throw new ValidationException(sprintf('Unmatched closing bracket found in query "%s".', $expr));
+                    throw new UnexpectedValueException(
+                        sprintf('Unmatched closing bracket found in query "%s".', $expr)
+                    );
                 }
 
                 --$openedBrackets;

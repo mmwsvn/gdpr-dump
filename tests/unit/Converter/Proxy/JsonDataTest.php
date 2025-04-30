@@ -9,7 +9,7 @@ use Smile\GdprDump\Converter\Proxy\JsonData;
 use Smile\GdprDump\Tests\Framework\Mock\Converter\ConverterMock;
 use Smile\GdprDump\Tests\Unit\Converter\TestCase;
 
-class JsonDataTest extends TestCase
+final class JsonDataTest extends TestCase
 {
     /**
      * Test the converter.
@@ -29,6 +29,7 @@ class JsonDataTest extends TestCase
         $this->assertNull($value);
 
         $value = $converter->convert($this->getJsonData());
+        $this->assertIsString($value);
         $this->assertJson($this->getExpectedData(), $value);
     }
 

@@ -1,16 +1,5 @@
 ---
-database:
-    host: '%env(DB_HOST)%'
-    port: '%env(DB_PORT)%'
-    user: '%env(DB_USER)%'
-    password: '%env(DB_PASSWORD)%'
-    name: '%env(DB_NAME)%'
-
-dump:
-    output: 'php://stdout'
-
-faker:
-    locale: 'fr_FR'
+requires_version: true
 
 variables:
     main_store_id: 'select store_id from stores where code = "store1"'
@@ -32,12 +21,18 @@ tables:
                 condition: '{{store_id}} == @main_store_id'
                 parameters:
                     value: 'test_'
-            firstname:
-                converter: 'prependText'
-                parameters:
-                    value: 'test_'
-            lastname:
-                converter: 'prependText'
-                parameters:
-                    value: 'test_'
         skip_conversion_if: '{{customer_id}} == 2'
+
+if_version:
+    '>=2.0.0':
+        tables:
+            customers:
+                converters:
+                    firstname:
+                        converter: 'prependText'
+                        parameters:
+                            value: 'test_'
+                    lastname:
+                        converter: 'prependText'
+                        parameters:
+                            value: 'test_'

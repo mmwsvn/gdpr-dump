@@ -23,7 +23,7 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-class DumpCommand extends Command
+final class DumpCommand extends Command
 {
     public function __construct(
         private DumperInterface $dumper,
@@ -76,7 +76,7 @@ class DumpCommand extends Command
             }
 
             // Prompt for the password if not defined
-            $database = $config->get('database', []);
+            $database = (array) $config->get('database', []);
             if (!array_key_exists('password', $database)) {
                 $database['password'] = $this->promptPassword($input, $output);
                 $config->set('database', $database);
@@ -129,7 +129,7 @@ class DumpCommand extends Command
      */
     private function addInputOptionsToConfig(ConfigInterface $config, InputInterface $input): void
     {
-        $databaseConfig = $config->get('database', []);
+        $databaseConfig = (array) $config->get('database', []);
 
         foreach (['host', 'port', 'user', 'password', 'database'] as $option) {
             $value = $input->getOption($option);

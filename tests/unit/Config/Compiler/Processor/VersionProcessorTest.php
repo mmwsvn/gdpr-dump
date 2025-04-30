@@ -9,7 +9,7 @@ use Smile\GdprDump\Config\Compiler\Processor\VersionProcessor;
 use Smile\GdprDump\Config\Config;
 use Smile\GdprDump\Tests\Unit\TestCase;
 
-class VersionProcessorTest extends TestCase
+final class VersionProcessorTest extends TestCase
 {
     /**
      * Assert that "if_version" blocks are processed successfully.
@@ -29,8 +29,8 @@ class VersionProcessorTest extends TestCase
             ],
         ];
 
-        $processor = new VersionProcessor();
         $config = new Config($data);
+        $processor = new VersionProcessor();
 
         // Test with version "1.0.0"
         $config->set('version', '1.0.0');

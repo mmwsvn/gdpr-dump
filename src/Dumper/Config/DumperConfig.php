@@ -4,48 +4,24 @@ declare(strict_types=1);
 
 namespace Smile\GdprDump\Dumper\Config;
 
-use Druidfi\Mysqldump\Compress\CompressManagerFactory;
-use Druidfi\Mysqldump\DumpSettings;
 use Smile\GdprDump\Config\ConfigInterface;
 use Smile\GdprDump\Dumper\Config\Definition\FakerSettings;
 use Smile\GdprDump\Dumper\Config\Definition\FilterPropagationSettings;
 use Smile\GdprDump\Dumper\Config\Definition\TableConfig;
 use Smile\GdprDump\Dumper\Config\Definition\TableConfigCollection;
 use Smile\GdprDump\Dumper\Config\Validation\QueryValidator;
-use Smile\GdprDump\Dumper\Config\Validation\ValidationException;
 
-class DumperConfig
+final class DumperConfig implements DumperConfigInterface
 {
     private FakerSettings $fakerSettings;
     private FilterPropagationSettings $filterPropagationSettings;
     private TableConfigCollection $tablesConfig;
-    private array $dumpSettings = [
-        'output' => 'php://stdout',
-        'add_drop_database' => false,
-        'add_drop_table' => true, // false in MySQLDump-PHP
-        'add_drop_trigger' => true,
-        'add_locks' => true,
-        'complete_insert' => false,
-        'compress' => CompressManagerFactory::NONE,
-        'default_character_set' => DumpSettings::UTF8,
-        'disable_keys' => true,
-        'events' => false,
-        'extended_insert' => true,
-        'hex_blob' => false, // true in MySQLDump-PHP
-        'init_commands' => [],
-        'insert_ignore' => false,
-        'lock_tables' => false, // true in MySQLDump-PHP
-        'net_buffer_length' => 1000000,
-        'no_autocommit' => true,
-        'no_create_info' => false,
-        'routines' => false,
-        'single_transaction' => true,
-        'skip_comments' => false,
-        'skip_definer' => false,
-        'skip_dump_date' => false,
-        'skip_triggers' => false,
-        'skip_tz_utc' => false,
-    ];
+    private array $dumpSettings;
+
+    /**
+     * @var string[]
+     */
+    private array $varQueries;
 
     /**
      * @var string[]
@@ -56,11 +32,6 @@ class DumperConfig
      * @var string[]
      */
     private array $excludedTables = [];
-
-    /**
-     * @var string[]
-     */
-    private array $varQueries = [];
 
     /**
      * @var string[]
@@ -77,20 +48,17 @@ class DumperConfig
      */
     private array $tablesToSort = [];
 
-    /**
-     * @throws ValidationException
-     */
     public function __construct(ConfigInterface $config)
     {
-        $this->prepareVarQueries($config);
         $this->prepareDumpSettings($config);
+        $this->prepareVarQueries($config);
         $this->prepareFakerSettings($config);
         $this->prepareFilterPropagationSettings($config);
         $this->prepareTableSettings($config);
     }
 
     /**
-     * Get the dump output.
+     * @inheritdoc
      */
     public function getDumpOutput(): string
     {
@@ -98,7 +66,7 @@ class DumperConfig
     }
 
     /**
-     * Get dump settings.
+     * @inheritdoc
      */
     public function getDumpSettings(): array
     {
@@ -106,7 +74,7 @@ class DumperConfig
     }
 
     /**
-     * Get faker settings.
+     * @inheritdoc
      */
     public function getFakerSettings(): FakerSettings
     {
@@ -114,7 +82,7 @@ class DumperConfig
     }
 
     /**
-     * Get filter propagation settings.
+     * @inheritdoc
      */
     public function getFilterPropagationSettings(): FilterPropagationSettings
     {
@@ -122,7 +90,7 @@ class DumperConfig
     }
 
     /**
-     * Get the tables configuration (filters, orders, limits).
+     * @inheritdoc
      */
     public function getTablesConfig(): TableConfigCollection
     {
@@ -130,12 +98,7 @@ class DumperConfig
     }
 
     /**
-     * Get the SQL queries to run.
-     *
-     * The result of each query will then be injected into user-defined variables.
-     * Array keys are the variable names, array values are the database queries.
-     *
-     * @return string[]
+     * @inheritdoc
      */
     public function getVarQueries(): array
     {
@@ -143,9 +106,7 @@ class DumperConfig
     }
 
     /**
-     * Get the tables to include.
-     *
-     * @return string[]
+     * @inheritdoc
      */
     public function getIncludedTables(): array
     {
@@ -153,9 +114,7 @@ class DumperConfig
     }
 
     /**
-     * Get the tables to exclude.
-     *
-     * @return string[]
+     * @inheritdoc
      */
     public function getExcludedTables(): array
     {
@@ -163,9 +122,7 @@ class DumperConfig
     }
 
     /**
-     * Get the tables to truncate (only the structure is included in the dump file, not the data).
-     *
-     * @return string[]
+     * @inheritdoc
      */
     public function getTablesToTruncate(): array
     {
@@ -173,9 +130,7 @@ class DumperConfig
     }
 
     /**
-     * Get the names of the tables to filter.
-     *
-     * @return string[]
+     * @inheritdoc
      */
     public function getTablesToFilter(): array
     {
@@ -183,9 +138,7 @@ class DumperConfig
     }
 
     /**
-     * Get the names of the tables to sort.
-     *
-     * @return string[]
+     * @inheritdoc
      */
     public function getTablesToSort(): array
     {
@@ -193,42 +146,32 @@ class DumperConfig
     }
 
     /**
-     * Prepare SQL variable queries.
-     *
-     * @throws ValidationException
+     * Prepare dump settings.
      */
-    private function prepareVarQueries(ConfigInterface $config): void
+    private function prepareDumpSettings(ConfigInterface $config): void
     {
-        $this->varQueries = $config->get('variables', []);
+        $this->dumpSettings = (array) $config->get('dump', []);
 
-        // Allow only "select" statements in queries
-        $selectQueryValidator = new QueryValidator(['select']);
-        foreach ($this->varQueries as $query) {
-            $selectQueryValidator->validate($query);
+        // Validate init commands
+        $queryValidator = new QueryValidator(['set']);
+        $initCommands = (array) ($this->dumpSettings['init_commands'] ?? []);
+
+        foreach ($initCommands as $query) {
+            $queryValidator->validate($query);
         }
     }
 
     /**
-     * Prepare dump settings.
-     *
-     * @throws ValidationException
+     * Prepare SQL variables.
      */
-    private function prepareDumpSettings(ConfigInterface $config): void
+    private function prepareVarQueries(ConfigInterface $config): void
     {
-        $settings = $config->get('dump', []);
+        $this->varQueries = (array) $config->get('variables', []);
 
-        foreach ($settings as $param => $value) {
-            if (!array_key_exists($param, $this->dumpSettings)) {
-                throw new ValidationException(sprintf('Invalid dump setting "%s".', $param));
-            }
-
-            $this->dumpSettings[$param] = $value;
-        }
-
-        // Allow only "set" statements in init commands
-        $initCommandQueryValidator = new QueryValidator(['set']);
-        foreach ($this->dumpSettings['init_commands'] as $query) {
-            $initCommandQueryValidator->validate($query);
+        // Validate SQL queries
+        $queryValidator = new QueryValidator(['select']);
+        foreach ($this->varQueries as $query) {
+            $queryValidator->validate($query);
         }
     }
 
@@ -237,7 +180,7 @@ class DumperConfig
      */
     private function prepareFakerSettings(ConfigInterface $config): void
     {
-        $settings = $config->get('faker', []);
+        $settings = (array) $config->get('faker', []);
         $this->fakerSettings = new FakerSettings((string) ($settings['locale'] ?? ''));
     }
 
@@ -246,11 +189,10 @@ class DumperConfig
      */
     private function prepareFilterPropagationSettings(ConfigInterface $config): void
     {
-        $settings = $config->get('filter_propagation', []);
-
+        $settings = (array) $config->get('filter_propagation', []);
         $this->filterPropagationSettings = new FilterPropagationSettings(
-            $settings['enabled'] ?? true,
-            $settings['ignored_foreign_keys'] ?? []
+            (bool) ($settings['enabled'] ?? true),
+            (array) ($settings['ignored_foreign_keys'] ?? [])
         );
     }
 
@@ -259,11 +201,12 @@ class DumperConfig
      */
     private function prepareTableSettings(ConfigInterface $config): void
     {
-        $this->includedTables = $config->get('tables_whitelist', []);
-        $this->excludedTables = $config->get('tables_blacklist', []);
+        $this->includedTables = (array) $config->get('tables_whitelist', []);
+        $this->excludedTables = (array) $config->get('tables_blacklist', []);
         $this->tablesConfig = new TableConfigCollection();
+        $tablesData = (array) $config->get('tables', []);
 
-        foreach ($config->get('tables', []) as $tableName => $tableData) {
+        foreach ($tablesData as $tableName => $tableData) {
             $tableConfig = new TableConfig((string) $tableName, $tableData);
             $this->tablesConfig->add($tableConfig);
 

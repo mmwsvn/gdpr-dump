@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Smile\GdprDump\Config\Compiler\Processor;
 
+use Smile\GdprDump\Config\Compiler\CompileException;
 use Smile\GdprDump\Config\Compiler\Processor\Version\MissingVersionException;
 use Smile\GdprDump\Config\Compiler\Processor\Version\VersionMatcher;
 use Smile\GdprDump\Config\ConfigInterface;
 
-class VersionProcessor implements ProcessorInterface
+final class VersionProcessor implements ProcessorInterface
 {
     /**
      * Process the "if_version" parameter.
+     *
+     * @throws CompileException
      */
     public function process(ConfigInterface $config): void
     {
